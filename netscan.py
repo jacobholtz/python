@@ -7,19 +7,24 @@ import sys
 import os
 import requests
 import colorama
-from colorama import Fore
-from colorama import Style
+from colorama import Fore as F
+from colorama import Style as S
 colorama.init()
 # check if scapy is installed
 try:
 	import scapy
 	pass
 except ModuleNotFoundError:
-	print(Fore.RED + Style.BRIGHT + "scapy not installed. installing..." + Style.RESET_ALL)
+	print(F.RED + S.BRIGHT + "scapy not installed. installing..." + S.RESET_ALL)
 	os.system("pip3 install scapy")
 	pass
 
 from scapy.all import ARP, Ether, srp
+
+# check for arugments
+if len(sys.argv) < 2:
+	print(F.RED + S.BRIGHT + "[-] Usage: ./netscan.py host_ip/subnet" + S.RESET_ALL)
+	quit()
 
 # begin scanning
 target_subnet = str(sys.argv[1]) # ip subnet to target
@@ -38,6 +43,10 @@ for sent, received in reply:
 # print the client list
 print("Found devices:")
 for client in clients:
-	r = requests.get('http://searchmac.com/api/v2/' + client['mac'])
-	oem = r.text
-	print(Fore.GREEN + Style.NORMAL + "[+] " + Style.RESET_ALL + "IP: " + client['ip'] + " "*6 + " MAC: " + client['mac'] + " (" + oem + ")")
+	try:
+		# try to get manufacturer
+		r = requests.get('http://searchmac.com/api/v2/' + client['mac'])
+		oem = r.text
+		print(F.GREEN + S.NORMAL + "[+] " + S.RESET_ALL + "IP: " + client['ip'] + " "*6 + " MAC: " + client['mac'] + " (" + oem + ")")
+	except ConnectionError:
+		print(F.GREEN + S.NORMAL + "[+] " + S.RESET_ALL + "IP: " + client['ip'] + " "*6 + " MAC: " + client['mac'])
